@@ -10,6 +10,8 @@
     --red: #D72B2B;
     --red-glow: rgba(215, 43, 43, 0.35);
     --yellow: #F5C200;
+    --green: #34C759;
+    --blue: #3B9EFF;
     --dark: #0A0A0A;
     --charcoal: #141414;
     --mid: #1E1E1E;
@@ -612,6 +614,200 @@
     .testimonials-grid { grid-template-columns: 1fr; }
     .mobile-nav a { font-size: 2rem; }
   }
+
+  /* =========================================================
+     INSURANCE CLAIMS TRACKER  (scoped under .claims-tracker)
+     ========================================================= */
+  .claims { padding: 110px 48px; background: var(--charcoal); position: relative; }
+  .claims::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, rgba(215,43,43,0.2), transparent); }
+  .claims-tracker { max-width: 1180px; margin: 0 auto; }
+
+  .claims-tracker .mode-tabs { display: inline-flex; gap: 4px; margin-top: 6px; margin-bottom: 44px; background: var(--mid); padding: 5px; border-radius: 10px; border: 1px solid var(--card-border); }
+  .claims-tracker .mode-tab { font-family: 'Barlow Condensed', sans-serif; font-size: 0.9rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); background: none; border: none; cursor: pointer; padding: 11px 24px; border-radius: 7px; transition: all 0.25s; display: flex; align-items: center; gap: 8px; }
+  .claims-tracker .mode-tab:hover { color: var(--light); }
+  .claims-tracker .mode-tab.active { background: var(--red); color: #fff; box-shadow: 0 2px 12px rgba(215,43,43,0.35); }
+
+  .claims-tracker .view { display: none; }
+  .claims-tracker .view.active { display: block; animation: ctFadeUp 0.5s cubic-bezier(0.16,1,0.3,1); }
+  @keyframes ctFadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes ctPulse { 0%,100% { box-shadow: 0 0 0 5px rgba(215,43,43,0.18); } 50% { box-shadow: 0 0 0 9px rgba(215,43,43,0.06); } }
+  @keyframes ctFadeIn { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes ctModalUp { from { opacity: 0; transform: translateY(30px) scale(0.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
+
+  /* buttons */
+  .claims-tracker .ctbtn { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; border-radius: 7px; cursor: pointer; transition: all 0.25s; border: none; display: inline-flex; align-items: center; justify-content: center; gap: 8px; font-size: 0.92rem; padding: 14px 28px; }
+  .claims-tracker .ctbtn-primary { background: var(--red); color: #fff; box-shadow: 0 2px 14px rgba(215,43,43,0.3); }
+  .claims-tracker .ctbtn-primary:hover { background: #c42020; transform: translateY(-2px); box-shadow: 0 6px 24px rgba(215,43,43,0.42); }
+  .claims-tracker .ctbtn-ghost { background: rgba(255,255,255,0.05); color: var(--light); border: 1px solid rgba(255,255,255,0.12); }
+  .claims-tracker .ctbtn-ghost:hover { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.25); }
+  .claims-tracker .ctbtn-danger { background: rgba(215,43,43,0.12); color: #ff6b6b; border: 1px solid rgba(215,43,43,0.3); }
+  .claims-tracker .ctbtn-danger:hover { background: rgba(215,43,43,0.22); }
+  .claims-tracker .ctbtn-sm { padding: 9px 16px; font-size: 0.8rem; }
+  .claims-tracker .ctbtn-block { width: 100%; }
+
+  /* fields */
+  .claims-tracker .field { display: flex; flex-direction: column; gap: 7px; margin-bottom: 18px; }
+  .claims-tracker .field label { font-family: 'Barlow Condensed', sans-serif; font-size: 0.76rem; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); }
+  .claims-tracker .field input, .claims-tracker .field select, .claims-tracker .field textarea { background: var(--mid); border: 1px solid rgba(255,255,255,0.08); color: var(--light); padding: 14px 16px; border-radius: var(--radius); font-family: 'Barlow', sans-serif; font-size: 0.95rem; outline: none; transition: all 0.25s; width: 100%; }
+  .claims-tracker .field input:focus, .claims-tracker .field select:focus, .claims-tracker .field textarea:focus { border-color: var(--red); box-shadow: 0 0 0 3px rgba(215,43,43,0.12); }
+  .claims-tracker .field input::placeholder, .claims-tracker .field textarea::placeholder { color: rgba(122,122,114,0.5); }
+  .claims-tracker .field select option { background: var(--mid); }
+  .claims-tracker .field textarea { resize: vertical; min-height: 90px; }
+  .claims-tracker .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .claims-tracker .field-row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+
+  /* customer lookup */
+  .claims-tracker .lookup-card { max-width: 640px; margin: 0 auto; background: var(--mid); border: 1px solid var(--card-border); border-radius: var(--radius-lg); padding: 44px; position: relative; overflow: hidden; }
+  .claims-tracker .lookup-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, var(--red), var(--yellow), var(--red)); }
+  .claims-tracker .lookup-card h3 { font-family: 'Bebas Neue', sans-serif; font-size: 2rem; letter-spacing: 0.03em; margin-bottom: 8px; }
+  .claims-tracker .lookup-card .sub { color: var(--muted); font-size: 0.95rem; margin-bottom: 28px; line-height: 1.6; }
+  .claims-tracker .lookup-hint { margin-top: 18px; font-size: 0.85rem; color: var(--muted); text-align: center; }
+  .claims-tracker .lookup-hint code { background: var(--charcoal); padding: 2px 8px; border-radius: 5px; color: var(--yellow); font-family: monospace; }
+  .claims-tracker .lookup-error { background: rgba(215,43,43,0.1); border: 1px solid rgba(215,43,43,0.3); color: #ff8585; padding: 12px 16px; border-radius: var(--radius); font-size: 0.9rem; margin-top: 16px; display: none; }
+  .claims-tracker .lookup-error.show { display: block; }
+
+  /* claim result */
+  .claims-tracker .claim-result { max-width: 860px; margin: 0 auto; display: none; }
+  .claims-tracker .claim-result.show { display: block; animation: ctFadeUp 0.5s cubic-bezier(0.16,1,0.3,1); }
+  .claims-tracker .result-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 20px; flex-wrap: wrap; margin-bottom: 28px; }
+  .claims-tracker .result-vehicle { font-family: 'Bebas Neue', sans-serif; font-size: 2.6rem; letter-spacing: 0.02em; line-height: 1; }
+  .claims-tracker .result-claimid { font-family: 'Barlow Condensed', sans-serif; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); font-size: 0.85rem; margin-top: 6px; }
+  .claims-tracker .result-claimid b { color: var(--yellow); }
+
+  /* pipeline */
+  .claims-tracker .pipeline { background: var(--mid); border: 1px solid var(--card-border); border-radius: var(--radius-lg); padding: 36px 32px; margin-bottom: 24px; position: relative; }
+  .claims-tracker .pipeline-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 30px; flex-wrap: wrap; gap: 12px; }
+  .claims-tracker .pipeline-head h4 { font-family: 'Barlow Condensed', sans-serif; font-size: 1.1rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
+  .claims-tracker .pct-badge { font-family: 'Bebas Neue', sans-serif; font-size: 1.6rem; color: var(--yellow); letter-spacing: 0.04em; }
+  .claims-tracker .progress-bar { height: 8px; background: var(--charcoal); border-radius: 99px; overflow: hidden; margin-bottom: 34px; }
+  .claims-tracker .progress-fill { height: 100%; background: linear-gradient(90deg, var(--red), var(--yellow)); border-radius: 99px; transition: width 0.8s cubic-bezier(0.16,1,0.3,1); }
+  .claims-tracker .steps { display: grid; gap: 0; }
+  .claims-tracker .pstep { display: grid; grid-template-columns: 44px 1fr; gap: 18px; position: relative; padding-bottom: 26px; }
+  .claims-tracker .pstep:last-child { padding-bottom: 0; }
+  .claims-tracker .pstep::before { content: ''; position: absolute; left: 21px; top: 38px; bottom: -4px; width: 2px; background: var(--charcoal); }
+  .claims-tracker .pstep:last-child::before { display: none; }
+  .claims-tracker .pstep.done::before { background: var(--green); }
+  .claims-tracker .pstep-dot { width: 44px; height: 44px; border-radius: 50%; background: var(--charcoal); border: 2px solid rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; font-family: 'Bebas Neue', sans-serif; font-size: 1.05rem; color: var(--muted); position: relative; z-index: 2; transition: all 0.3s; }
+  .claims-tracker .pstep.done .pstep-dot { background: var(--green); border-color: var(--green); color: #fff; }
+  .claims-tracker .pstep.current .pstep-dot { background: var(--red); border-color: var(--red); color: #fff; box-shadow: 0 0 0 5px rgba(215,43,43,0.18); animation: ctPulse 2s infinite; }
+  .claims-tracker .pstep-body { padding-top: 4px; }
+  .claims-tracker .pstep-title { font-family: 'Barlow Condensed', sans-serif; font-size: 1.08rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: var(--muted); }
+  .claims-tracker .pstep.done .pstep-title, .claims-tracker .pstep.current .pstep-title { color: var(--light); }
+  .claims-tracker .pstep-desc { font-size: 0.88rem; color: var(--muted); margin-top: 3px; line-height: 1.5; }
+  .claims-tracker .pstep.current .pstep-desc { color: var(--yellow); }
+
+  /* info grid */
+  .claims-tracker .info-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 2px; background: var(--card-border); border-radius: var(--radius-lg); overflow: hidden; border: 1px solid var(--card-border); margin-bottom: 24px; }
+  .claims-tracker .info-cell { background: var(--mid); padding: 22px 24px; }
+  .claims-tracker .info-cell .k { font-family: 'Barlow Condensed', sans-serif; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); margin-bottom: 7px; }
+  .claims-tracker .info-cell .v { font-size: 1.02rem; color: var(--light); font-weight: 500; }
+  .claims-tracker .info-cell .v.accent { color: var(--yellow); font-family: 'Bebas Neue', sans-serif; font-size: 1.5rem; letter-spacing: 0.03em; }
+
+  /* updates */
+  .claims-tracker .updates { background: var(--mid); border: 1px solid var(--card-border); border-radius: var(--radius-lg); padding: 32px; }
+  .claims-tracker .updates h4 { font-family: 'Barlow Condensed', sans-serif; font-size: 1.1rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 24px; }
+  .claims-tracker .update-item { display: grid; grid-template-columns: 14px 1fr; gap: 16px; padding-bottom: 22px; position: relative; }
+  .claims-tracker .update-item:last-child { padding-bottom: 0; }
+  .claims-tracker .update-item::before { content: ''; position: absolute; left: 6px; top: 16px; bottom: -2px; width: 2px; background: var(--charcoal); }
+  .claims-tracker .update-item:last-child::before { display: none; }
+  .claims-tracker .update-dot { width: 14px; height: 14px; border-radius: 50%; background: var(--red); margin-top: 4px; position: relative; z-index: 2; box-shadow: 0 0 0 4px rgba(215,43,43,0.12); }
+  .claims-tracker .update-time { font-family: 'Barlow Condensed', sans-serif; font-size: 0.76rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin-bottom: 3px; }
+  .claims-tracker .update-text { font-size: 0.94rem; color: var(--light); line-height: 1.55; }
+
+  /* badges */
+  .claims-tracker .badge { display: inline-flex; align-items: center; gap: 6px; font-family: 'Barlow Condensed', sans-serif; font-size: 0.74rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; padding: 6px 12px; border-radius: 99px; white-space: nowrap; }
+  .claims-tracker .badge::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+  .claims-tracker .badge.estimate { background: rgba(59,158,255,0.12); color: #6bb6ff; }
+  .claims-tracker .badge.approval, .claims-tracker .badge.parts { background: rgba(245,194,0,0.12); color: var(--yellow); }
+  .claims-tracker .badge.repair, .claims-tracker .badge.paint { background: rgba(215,43,43,0.14); color: #ff7a7a; }
+  .claims-tracker .badge.quality { background: rgba(59,158,255,0.12); color: #6bb6ff; }
+  .claims-tracker .badge.ready { background: rgba(52,199,89,0.14); color: #5fdb83; }
+  .claims-tracker .badge.completed { background: rgba(122,122,114,0.16); color: #b3b3aa; }
+
+  /* PIN gate */
+  .claims-tracker .gate { max-width: 420px; margin: 0 auto; background: var(--mid); border: 1px solid var(--card-border); border-radius: var(--radius-lg); padding: 44px; text-align: center; position: relative; overflow: hidden; }
+  .claims-tracker .gate::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, var(--red), var(--yellow), var(--red)); }
+  .claims-tracker .gate .lock { font-size: 2.4rem; margin-bottom: 14px; }
+  .claims-tracker .gate h3 { font-family: 'Bebas Neue', sans-serif; font-size: 1.9rem; letter-spacing: 0.03em; margin-bottom: 8px; }
+  .claims-tracker .gate p { color: var(--muted); font-size: 0.9rem; margin-bottom: 26px; }
+  .claims-tracker .pin-input { text-align: center; font-size: 1.6rem !important; letter-spacing: 0.5em; font-family: 'Bebas Neue', sans-serif !important; }
+
+  /* dashboard */
+  .claims-tracker .dash-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-bottom: 28px; }
+  .claims-tracker .dash-search { flex: 1; min-width: 240px; position: relative; }
+  .claims-tracker .dash-search input { background: var(--mid); border: 1px solid var(--card-border); color: var(--light); padding: 13px 16px 13px 44px; border-radius: var(--radius); font-family: 'Barlow', sans-serif; font-size: 0.95rem; outline: none; width: 100%; transition: all 0.25s; }
+  .claims-tracker .dash-search input:focus { border-color: var(--red); box-shadow: 0 0 0 3px rgba(215,43,43,0.12); }
+  .claims-tracker .dash-search .ico { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); opacity: 0.5; }
+  .claims-tracker .dash-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+
+  .claims-tracker .ct-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 16px; margin-bottom: 32px; }
+  .claims-tracker .stat-card { background: var(--mid); border: 1px solid var(--card-border); border-radius: var(--radius); padding: 22px; position: relative; overflow: hidden; transition: all 0.3s; }
+  .claims-tracker .stat-card::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 3px; background: var(--red); transform: scaleX(0); transform-origin: left; transition: transform 0.35s; }
+  .claims-tracker .stat-card:hover { transform: translateY(-3px); border-color: rgba(215,43,43,0.2); }
+  .claims-tracker .stat-card:hover::after { transform: scaleX(1); }
+  .claims-tracker .stat-card .num { font-family: 'Bebas Neue', sans-serif; font-size: 2.6rem; line-height: 1; letter-spacing: 0.02em; }
+  .claims-tracker .stat-card .lbl { font-family: 'Barlow Condensed', sans-serif; font-size: 0.74rem; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); margin-top: 6px; }
+  .claims-tracker .stat-card.active-c .num { color: var(--light); }
+  .claims-tracker .stat-card.approval-c .num { color: var(--yellow); }
+  .claims-tracker .stat-card.repair-c .num { color: #ff7a7a; }
+  .claims-tracker .stat-card.ready-c .num { color: #5fdb83; }
+  .claims-tracker .stat-card.value-c .num { color: var(--yellow); }
+
+  .claims-tracker .filter-chips { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 24px; }
+  .claims-tracker .chip { font-family: 'Barlow Condensed', sans-serif; font-size: 0.82rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); background: var(--mid); border: 1px solid var(--card-border); padding: 8px 16px; border-radius: 99px; cursor: pointer; transition: all 0.2s; }
+  .claims-tracker .chip:hover { color: var(--light); border-color: rgba(255,255,255,0.2); }
+  .claims-tracker .chip.active { background: var(--red); color: #fff; border-color: var(--red); }
+
+  .claims-tracker .claims-list { display: grid; gap: 14px; }
+  .claims-tracker .claim-row { background: var(--mid); border: 1px solid var(--card-border); border-radius: var(--radius); padding: 20px 24px; display: grid; grid-template-columns: 1.4fr 1fr 1fr auto auto; gap: 20px; align-items: center; cursor: pointer; transition: all 0.25s; position: relative; overflow: hidden; }
+  .claims-tracker .claim-row::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--red); transform: scaleY(0); transition: transform 0.25s; }
+  .claims-tracker .claim-row:hover { border-color: rgba(215,43,43,0.25); transform: translateX(3px); }
+  .claims-tracker .claim-row:hover::before { transform: scaleY(1); }
+  .claims-tracker .cr-vehicle { font-family: 'Barlow Condensed', sans-serif; font-size: 1.15rem; font-weight: 700; letter-spacing: 0.03em; }
+  .claims-tracker .cr-sub { font-size: 0.82rem; color: var(--muted); margin-top: 3px; }
+  .claims-tracker .cr-label { font-family: 'Barlow Condensed', sans-serif; font-size: 0.68rem; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); margin-bottom: 4px; }
+  .claims-tracker .cr-val { font-size: 0.92rem; color: var(--light); }
+  .claims-tracker .cr-mini-bar { height: 5px; background: var(--charcoal); border-radius: 99px; overflow: hidden; margin-top: 8px; width: 100%; }
+  .claims-tracker .cr-mini-fill { height: 100%; background: linear-gradient(90deg, var(--red), var(--yellow)); border-radius: 99px; }
+
+  .claims-tracker .empty-state { text-align: center; padding: 80px 20px; color: var(--muted); }
+  .claims-tracker .empty-state .big { font-size: 3rem; margin-bottom: 16px; opacity: 0.5; }
+  .claims-tracker .empty-state h4 { font-family: 'Barlow Condensed', sans-serif; font-size: 1.3rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--light); margin-bottom: 8px; }
+
+  /* modal */
+  .claims-tracker .modal-overlay { position: fixed; inset: 0; z-index: 200; background: rgba(0,0,0,0.7); backdrop-filter: blur(6px); display: none; align-items: flex-start; justify-content: center; padding: 40px 20px; overflow-y: auto; }
+  .claims-tracker .modal-overlay.open { display: flex; animation: ctFadeIn 0.25s; }
+  .claims-tracker .modal { background: var(--charcoal); border: 1px solid var(--card-border); border-radius: var(--radius-lg); width: 100%; max-width: 720px; position: relative; animation: ctModalUp 0.3s cubic-bezier(0.16,1,0.3,1); margin: auto; }
+  .claims-tracker .modal-head { padding: 28px 32px; border-bottom: 1px solid var(--card-border); display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; background: var(--charcoal); z-index: 3; border-radius: var(--radius-lg) var(--radius-lg) 0 0; }
+  .claims-tracker .modal-head h3 { font-family: 'Bebas Neue', sans-serif; font-size: 1.7rem; letter-spacing: 0.03em; }
+  .claims-tracker .modal-close { background: none; border: none; color: var(--muted); font-size: 1.8rem; cursor: pointer; line-height: 1; transition: color 0.2s; padding: 0 6px; }
+  .claims-tracker .modal-close:hover { color: var(--red); }
+  .claims-tracker .modal-body { padding: 32px; }
+  .claims-tracker .modal-foot { padding: 22px 32px; border-top: 1px solid var(--card-border); display: flex; gap: 12px; justify-content: flex-end; flex-wrap: wrap; }
+  .claims-tracker .form-section-title { font-family: 'Barlow Condensed', sans-serif; font-size: 0.78rem; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--red); margin: 24px 0 14px; }
+  .claims-tracker .form-section-title:first-child { margin-top: 0; }
+  .claims-tracker .detail-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+  .claims-tracker .stage-select-row { display: flex; gap: 10px; align-items: flex-end; flex-wrap: wrap; margin: 20px 0; padding: 20px; background: var(--mid); border-radius: var(--radius); }
+  .claims-tracker .stage-select-row .field { flex: 1; min-width: 180px; margin-bottom: 0; }
+  .claims-tracker .note-add { display: flex; gap: 10px; margin-top: 14px; }
+  .claims-tracker .note-add input { flex: 1; }
+
+  .claims-tracker .toast { position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%) translateY(120px); background: var(--mid); border: 1px solid rgba(52,199,89,0.4); color: var(--light); padding: 14px 24px; border-radius: 10px; font-family: 'Barlow Condensed', sans-serif; font-size: 0.95rem; letter-spacing: 0.05em; z-index: 500; transition: transform 0.4s cubic-bezier(0.16,1,0.3,1); box-shadow: 0 8px 30px rgba(0,0,0,0.4); display: flex; align-items: center; gap: 10px; }
+  .claims-tracker .toast.show { transform: translateX(-50%) translateY(0); }
+  .claims-tracker .toast::before { content: '\2713'; color: var(--green); font-weight: 700; }
+
+  @media (max-width: 1024px) {
+    .claims-tracker .claim-row { grid-template-columns: 1fr 1fr; gap: 14px; }
+    .claims-tracker .claim-row .cr-stage-col { grid-column: 1 / -1; }
+  }
+  @media (max-width: 640px) {
+    .claims { padding: 60px 20px; }
+    .claims-tracker .lookup-card, .claims-tracker .gate { padding: 30px 22px; }
+    .claims-tracker .field-row, .claims-tracker .field-row-3 { grid-template-columns: 1fr; }
+    .claims-tracker .claim-row { grid-template-columns: 1fr; }
+    .claims-tracker .modal-body, .claims-tracker .modal-head, .claims-tracker .modal-foot { padding-left: 20px; padding-right: 20px; }
+    .claims-tracker .mode-tab { padding: 10px 16px; font-size: 0.82rem; }
+  }
 </style>
 </head>
 <body>
@@ -623,6 +819,7 @@
     <li><a href="#why">Why Us</a></li>
     <li><a href="#testimonials">Reviews</a></li>
     <li><a href="#process">Process</a></li>
+    <li><a href="#claims">Track Claim</a></li>
     <li><a href="#contact">Contact</a></li>
   </ul>
   <button class="hamburger" aria-label="Toggle menu">
@@ -636,6 +833,7 @@
   <a href="#why">Why Us</a>
   <a href="#testimonials">Reviews</a>
   <a href="#process">Process</a>
+  <a href="#claims">Track Claim</a>
   <a href="#contact">Contact</a>
 </div>
 
@@ -848,6 +1046,142 @@
   </div>
 </section>
 
+<section class="claims" id="claims">
+  <div class="claims-tracker">
+    <div class="section-header reveal" style="margin-bottom:0;">
+      <div class="section-label">Insurance Claims</div>
+      <h2>Claims <em>Tracker</em></h2>
+      <p style="color:var(--muted);max-width:560px;line-height:1.7;margin-top:16px;">Real-time visibility from estimate to keys-in-hand. Track your repair in seconds, or manage the full shop pipeline — all in one place.</p>
+      <div class="mode-tabs">
+        <button class="mode-tab active" data-mode="customer">&#128269; Track My Claim</button>
+        <button class="mode-tab" data-mode="shop">&#128295; Shop Dashboard</button>
+      </div>
+    </div>
+
+    <!-- CUSTOMER VIEW -->
+    <div class="view active" id="view-customer">
+      <div class="lookup-card" id="lookupCard">
+        <h3>Check Your Repair Status</h3>
+        <p class="sub">Enter your claim number and the phone number on file. Your full repair timeline updates automatically as we work.</p>
+        <div class="field">
+          <label for="lk-claim">Claim Number</label>
+          <input type="text" id="lk-claim" placeholder="e.g. GAB-1042" autocomplete="off">
+        </div>
+        <div class="field">
+          <label for="lk-phone">Phone Number on File</label>
+          <input type="tel" id="lk-phone" placeholder="(651) 555-0123" autocomplete="off">
+        </div>
+        <button class="ctbtn ctbtn-primary ctbtn-block" id="lookupBtn">Track My Claim</button>
+        <div class="lookup-error" id="lookupError"></div>
+        <p class="lookup-hint">Demo claims: <code>GAB-1042</code> / <code>651-555-0123</code> &nbsp;·&nbsp; <code>GAB-1043</code> / <code>651-555-0177</code></p>
+      </div>
+      <div class="claim-result" id="claimResult"></div>
+    </div>
+
+    <!-- SHOP VIEW -->
+    <div class="view" id="view-shop">
+      <div class="gate" id="shopGate">
+        <div class="lock">&#128274;</div>
+        <h3>Staff Access</h3>
+        <p>Enter your shop PIN to manage claims.</p>
+        <div class="field">
+          <input type="password" id="pinInput" class="pin-input" maxlength="4" placeholder="&bull;&bull;&bull;&bull;" inputmode="numeric" autocomplete="off">
+        </div>
+        <button class="ctbtn ctbtn-primary ctbtn-block" id="pinBtn">Unlock Dashboard</button>
+        <div class="lookup-error" id="pinError">Incorrect PIN. Try again.</div>
+        <p class="lookup-hint" style="margin-top:20px;">Demo PIN: <code>1979</code></p>
+      </div>
+
+      <div id="shopDash" style="display:none;">
+        <div class="ct-stats" id="statsRow"></div>
+        <div class="dash-toolbar">
+          <div class="dash-search">
+            <span class="ico">&#128269;</span>
+            <input type="text" id="dashSearch" placeholder="Search by customer, vehicle, claim # or insurer...">
+          </div>
+          <div class="dash-actions">
+            <button class="ctbtn ctbtn-primary" id="addClaimBtn">&#43; New Claim</button>
+            <button class="ctbtn ctbtn-ghost" id="exportBtn">Export CSV</button>
+            <button class="ctbtn ctbtn-ghost ctbtn-sm" id="lockBtn">Lock</button>
+          </div>
+        </div>
+        <div class="filter-chips" id="filterChips"></div>
+        <div class="claims-list" id="claimsList"></div>
+      </div>
+    </div>
+
+    <!-- ADD / EDIT MODAL -->
+    <div class="modal-overlay" id="formModal">
+      <div class="modal">
+        <div class="modal-head">
+          <h3 id="formTitle">New Claim</h3>
+          <button class="modal-close" data-close>&times;</button>
+        </div>
+        <div class="modal-body">
+          <form id="claimForm">
+            <input type="hidden" id="f-id">
+            <div class="form-section-title">Customer</div>
+            <div class="field-row">
+              <div class="field"><label>Full Name</label><input type="text" id="f-customer" required></div>
+              <div class="field"><label>Phone</label><input type="tel" id="f-phone" placeholder="(651) 555-0123" required></div>
+            </div>
+            <div class="field"><label>Email</label><input type="email" id="f-email" placeholder="customer@email.com"></div>
+            <div class="form-section-title">Vehicle</div>
+            <div class="field-row-3">
+              <div class="field"><label>Year</label><input type="text" id="f-year" placeholder="2021" required></div>
+              <div class="field"><label>Make</label><input type="text" id="f-make" placeholder="Toyota" required></div>
+              <div class="field"><label>Model</label><input type="text" id="f-model" placeholder="RAV4" required></div>
+            </div>
+            <div class="field-row">
+              <div class="field"><label>Color</label><input type="text" id="f-color" placeholder="Silver"></div>
+              <div class="field"><label>VIN (last 8)</label><input type="text" id="f-vin" placeholder="A1B2C3D4"></div>
+            </div>
+            <div class="form-section-title">Insurance</div>
+            <div class="field-row">
+              <div class="field"><label>Insurance Company</label><input type="text" id="f-insurer" placeholder="State Farm" required></div>
+              <div class="field"><label>Claim Number</label><input type="text" id="f-claimnum" placeholder="Auto-generated if blank"></div>
+            </div>
+            <div class="field-row-3">
+              <div class="field"><label>Adjuster</label><input type="text" id="f-adjuster" placeholder="Name"></div>
+              <div class="field"><label>Deductible ($)</label><input type="number" id="f-deductible" placeholder="500"></div>
+              <div class="field"><label>Estimate ($)</label><input type="number" id="f-estimate" placeholder="4200"></div>
+            </div>
+            <div class="form-section-title">Repair</div>
+            <div class="field-row">
+              <div class="field"><label>Current Stage</label><select id="f-stage"></select></div>
+              <div class="field"><label>Target Completion</label><input type="date" id="f-target"></div>
+            </div>
+            <div class="field"><label>Damage / Notes</label><textarea id="f-damage" placeholder="Front-end collision, hood and bumper replacement..."></textarea></div>
+          </form>
+        </div>
+        <div class="modal-foot">
+          <button class="ctbtn ctbtn-ghost" data-close>Cancel</button>
+          <button class="ctbtn ctbtn-primary" id="saveClaimBtn">Save Claim</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- DETAIL MODAL -->
+    <div class="modal-overlay" id="detailModal">
+      <div class="modal">
+        <div class="modal-head">
+          <h3 id="detailTitle">Claim Detail</h3>
+          <button class="modal-close" data-close>&times;</button>
+        </div>
+        <div class="modal-body" id="detailBody"></div>
+        <div class="modal-foot">
+          <button class="ctbtn ctbtn-danger ctbtn-sm" id="deleteClaimBtn">Delete Claim</button>
+          <div style="flex:1"></div>
+          <button class="ctbtn ctbtn-ghost" data-close>Close</button>
+          <button class="ctbtn ctbtn-primary" id="editFromDetailBtn">Edit Details</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="toast" id="toast">Saved</div>
+  </div>
+</section>
+
 <div class="cta-band reveal">
   <h2>Ready to <em>Restore</em> Your Ride?</h2>
   <a href="#contact" class="btn-white">Get Your Free Estimate</a>
@@ -1018,6 +1352,338 @@
     });
   }, { threshold: 0.3 });
   counters.forEach(function(el) { counterObserver.observe(el); });
+</script>
+
+<script>
+/* =========================================================
+   GREGG'S AUTO BODY — INSURANCE CLAIMS TRACKER
+   Self-contained, localStorage-backed. No backend required.
+   ========================================================= */
+(function(){
+var STAGES = [
+  { key: 'estimate',  label: 'Estimate',           badge: 'estimate',  desc: 'Damage assessed and quote prepared.' },
+  { key: 'approval',  label: 'Insurance Approval', badge: 'approval',  desc: 'Awaiting carrier authorization.' },
+  { key: 'parts',     label: 'Parts Ordered',      badge: 'parts',     desc: 'OEM parts on order and inbound.' },
+  { key: 'repair',    label: 'In Repair',          badge: 'repair',    desc: 'Body & structural work underway.' },
+  { key: 'paint',     label: 'Paint & Refinish',   badge: 'paint',     desc: 'Color-matched paint and refinishing.' },
+  { key: 'quality',   label: 'Quality Check',      badge: 'quality',   desc: 'Final inspection and detailing.' },
+  { key: 'ready',     label: 'Ready for Pickup',   badge: 'ready',     desc: 'Repair complete — ready to go!' },
+  { key: 'completed', label: 'Completed',          badge: 'completed', desc: 'Vehicle delivered. Thank you!' }
+];
+function stageIndex(key){ for(var i=0;i<STAGES.length;i++){ if(STAGES[i].key===key) return i; } return 0; }
+function stageDef(key){ return STAGES[stageIndex(key)]; }
+function stagePct(key){ var i=stageIndex(key); return Math.round((i/(STAGES.length-1))*100); }
+
+var STORE_KEY = 'gab_claims_v1';
+var SHOP_PIN = '1979';
+
+function seedData(){
+  var today = new Date();
+  function dStr(o){ var d=new Date(today); d.setDate(d.getDate()+o); return d.toISOString().slice(0,10); }
+  function ts(o){ var d=new Date(today); d.setDate(d.getDate()+o); return d.getTime(); }
+  return [
+    { id:'GAB-1042', customer:'Sarah Lindgren', phone:'651-555-0123', email:'sarah.l@email.com',
+      year:'2021', make:'Toyota', model:'RAV4', color:'Silver', vin:'X4Y7Z2Q9',
+      insurer:'State Farm', adjuster:'D. Olson', deductible:500, estimate:4250,
+      stage:'repair', target:dStr(6), created:ts(-9), damage:'Rear-end collision — bumper, tailgate, and rear quarter panel.',
+      updates:[
+        {t:ts(-9),text:'Claim opened. Initial estimate completed and sent to State Farm.'},
+        {t:ts(-7),text:'Insurance approved repair. Authorization received from adjuster D. Olson.'},
+        {t:ts(-5),text:'OEM rear bumper and tailgate ordered.'},
+        {t:ts(-1),text:'Parts received. Body repair work has begun.'}
+      ] },
+    { id:'GAB-1043', customer:'Marcus Webb', phone:'651-555-0177', email:'mwebb@email.com',
+      year:'2019', make:'Honda', model:'Civic', color:'Black', vin:'B8C2D4E1',
+      insurer:'Progressive', adjuster:'K. Reyes', deductible:1000, estimate:2890,
+      stage:'approval', target:dStr(11), created:ts(-3), damage:'Driver-side door and mirror — parking lot collision.',
+      updates:[
+        {t:ts(-3),text:'Claim opened. Estimate submitted to Progressive for review.'},
+        {t:ts(-1),text:'Supplement photos requested by adjuster. Documentation sent.'}
+      ] },
+    { id:'GAB-1041', customer:'Tina Alvarez', phone:'651-555-0148', email:'tina.a@email.com',
+      year:'2022', make:'Subaru', model:'Outback', color:'Green', vin:'F3G6H9J2',
+      insurer:'Allstate', adjuster:'M. Chen', deductible:250, estimate:6480,
+      stage:'ready', target:dStr(1), created:ts(-16), damage:'Hail damage — hood, roof, and both front fenders (PDR).',
+      updates:[
+        {t:ts(-16),text:'Claim opened. Hail damage assessment completed.'},
+        {t:ts(-14),text:'Allstate approved PDR repair.'},
+        {t:ts(-10),text:'Paintless dent repair underway across all panels.'},
+        {t:ts(-4),text:'Repairs complete. Vehicle passed final quality inspection.'},
+        {t:ts(-1),text:'Vehicle detailed and ready for pickup. Customer notified.'}
+      ] },
+    { id:'GAB-1039', customer:'James Park', phone:'651-555-0192', email:'jpark@email.com',
+      year:'2020', make:'Ford', model:'F-150', color:'Blue', vin:'K5L8M1N4',
+      insurer:'Geico', adjuster:'R. Singh', deductible:500, estimate:8920,
+      stage:'completed', target:dStr(-2), created:ts(-24), damage:'Front-end collision — full bumper, grille, hood, headlight assembly.',
+      updates:[
+        {t:ts(-24),text:'Claim opened. Estimate prepared.'},
+        {t:ts(-22),text:'Geico approved repair.'},
+        {t:ts(-12),text:'All work completed and quality checked.'},
+        {t:ts(-2),text:'Vehicle delivered to customer. Claim closed.'}
+      ] }
+  ];
+}
+
+function loadClaims(){
+  var raw = localStorage.getItem(STORE_KEY);
+  if(!raw){ var s=seedData(); localStorage.setItem(STORE_KEY, JSON.stringify(s)); return s; }
+  try { return JSON.parse(raw); } catch(e){ return seedData(); }
+}
+function saveClaims(c){ localStorage.setItem(STORE_KEY, JSON.stringify(c)); }
+var claims = loadClaims();
+
+var root = document.getElementById('claims');
+function $(s){ return root.querySelector(s); }
+function $all(s){ return root.querySelectorAll(s); }
+function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g, function(m){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]; }); }
+function money(n){ if(n==null||n==='') return '—'; return '$'+Number(n).toLocaleString('en-US'); }
+function digits(s){ return String(s||'').replace(/\D/g,''); }
+function fmtDate(d){ if(!d) return '—'; var x=new Date(d+'T00:00:00'); if(isNaN(x)) return d; return x.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}); }
+function fmtTime(t){ var d=new Date(t); return d.toLocaleDateString('en-US',{month:'short',day:'numeric'})+' · '+d.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'}); }
+function vehicleName(c){ return c.year+' '+c.make+' '+c.model; }
+function nextClaimId(){ var max=1043; claims.forEach(function(c){ var n=parseInt(String(c.id).replace(/\D/g,'')); if(n>max) max=n; }); return 'GAB-'+(max+1); }
+function toast(msg){ var t=$('#toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(t._t); t._t=setTimeout(function(){ t.classList.remove('show'); },2600); }
+
+/* MODE SWITCHING */
+$all('.mode-tab').forEach(function(tab){
+  tab.addEventListener('click', function(){
+    $all('.mode-tab').forEach(function(t){ t.classList.remove('active'); });
+    tab.classList.add('active');
+    var mode=tab.getAttribute('data-mode');
+    $('#view-customer').classList.toggle('active', mode==='customer');
+    $('#view-shop').classList.toggle('active', mode==='shop');
+  });
+});
+
+/* CUSTOMER LOOKUP */
+function renderClaimResult(c){
+  var curIdx=stageIndex(c.stage), pct=stagePct(c.stage);
+  var stepsHtml=STAGES.map(function(s,i){
+    var cls=i<curIdx?'done':(i===curIdx?'current':'');
+    var icon=i<curIdx?'&#10003;':(i+1);
+    var desc=(i===curIdx)?s.desc:(i<curIdx?'Completed':s.desc);
+    return '<div class="pstep '+cls+'"><div class="pstep-dot">'+icon+'</div><div class="pstep-body"><div class="pstep-title">'+s.label+'</div><div class="pstep-desc">'+desc+'</div></div></div>';
+  }).join('');
+  var updatesHtml=(c.updates||[]).slice().reverse().map(function(u){
+    return '<div class="update-item"><div class="update-dot"></div><div><div class="update-time">'+fmtTime(u.t)+'</div><div class="update-text">'+esc(u.text)+'</div></div></div>';
+  }).join('')||'<p style="color:var(--muted)">No updates yet.</p>';
+  var sd=stageDef(c.stage);
+  $('#claimResult').innerHTML=
+    '<div class="result-top"><div><div class="result-vehicle">'+esc(vehicleName(c))+'</div><div class="result-claimid">Claim <b>'+esc(c.id)+'</b> · '+esc(c.insurer)+'</div></div><span class="badge '+sd.badge+'">'+sd.label+'</span></div>'+
+    '<div class="pipeline"><div class="pipeline-head"><h4>Repair Progress</h4><span class="pct-badge">'+pct+'% Complete</span></div><div class="progress-bar"><div class="progress-fill" style="width:0%"></div></div><div class="steps">'+stepsHtml+'</div></div>'+
+    '<div class="info-grid">'+
+      '<div class="info-cell"><div class="k">Customer</div><div class="v">'+esc(c.customer)+'</div></div>'+
+      '<div class="info-cell"><div class="k">Color</div><div class="v">'+esc(c.color||'—')+'</div></div>'+
+      '<div class="info-cell"><div class="k">Target Completion</div><div class="v">'+fmtDate(c.target)+'</div></div>'+
+      '<div class="info-cell"><div class="k">Your Deductible</div><div class="v accent">'+money(c.deductible)+'</div></div>'+
+      '<div class="info-cell"><div class="k">Adjuster</div><div class="v">'+esc(c.adjuster||'—')+'</div></div>'+
+      '<div class="info-cell"><div class="k">Repair Estimate</div><div class="v">'+money(c.estimate)+'</div></div>'+
+    '</div>'+
+    (c.damage?'<div class="info-grid" style="grid-template-columns:1fr"><div class="info-cell"><div class="k">Damage Summary</div><div class="v" style="font-weight:400;line-height:1.6">'+esc(c.damage)+'</div></div></div>':'')+
+    '<div class="updates"><h4>Status Updates</h4>'+updatesHtml+'</div>'+
+    '<div style="text-align:center;margin-top:28px"><button class="ctbtn ctbtn-ghost" id="backToLookup">&larr; Track a different claim</button></div>';
+  $('#lookupCard').style.display='none';
+  $('#claimResult').classList.add('show');
+  setTimeout(function(){ var f=$('#claimResult .progress-fill'); if(f) f.style.width=pct+'%'; },100);
+  $('#backToLookup').addEventListener('click', function(){
+    $('#claimResult').classList.remove('show');
+    $('#lookupCard').style.display='block';
+    $('#lk-claim').value=''; $('#lk-phone').value='';
+  });
+}
+function doLookup(){
+  var id=$('#lk-claim').value.trim().toUpperCase();
+  var phone=digits($('#lk-phone').value);
+  var err=$('#lookupError');
+  if(!id||!phone){ err.textContent='Please enter both your claim number and phone number.'; err.classList.add('show'); return; }
+  var match=claims.filter(function(c){ return String(c.id).toUpperCase()===id && digits(c.phone)===phone; })[0];
+  if(!match){ err.textContent='No claim found with that number and phone combination. Double-check your details or call us at (651) 774-8211.'; err.classList.add('show'); return; }
+  err.classList.remove('show'); renderClaimResult(match);
+}
+$('#lookupBtn').addEventListener('click', doLookup);
+$('#lk-claim').addEventListener('keydown', function(e){ if(e.key==='Enter') doLookup(); });
+$('#lk-phone').addEventListener('keydown', function(e){ if(e.key==='Enter') doLookup(); });
+
+/* SHOP PIN GATE */
+function unlockDash(){ $('#shopGate').style.display='none'; $('#shopDash').style.display='block'; sessionStorage.setItem('gab_unlocked','1'); renderDash(); }
+$('#pinBtn').addEventListener('click', function(){
+  if($('#pinInput').value===SHOP_PIN){ $('#pinError').classList.remove('show'); unlockDash(); }
+  else { $('#pinError').classList.add('show'); $('#pinInput').value=''; }
+});
+$('#pinInput').addEventListener('keydown', function(e){ if(e.key==='Enter') $('#pinBtn').click(); });
+if(sessionStorage.getItem('gab_unlocked')==='1'){ unlockDash(); }
+$('#lockBtn').addEventListener('click', function(){
+  sessionStorage.removeItem('gab_unlocked'); $('#shopDash').style.display='none'; $('#shopGate').style.display='block'; $('#pinInput').value='';
+});
+
+/* DASHBOARD */
+var activeFilter='all', searchTerm='';
+function renderStats(){
+  var activeStates=['estimate','approval','parts','repair','paint','quality'];
+  var active=claims.filter(function(c){ return activeStates.indexOf(c.stage)>=0; }).length;
+  var approval=claims.filter(function(c){ return c.stage==='approval'; }).length;
+  var repair=claims.filter(function(c){ return ['parts','repair','paint','quality'].indexOf(c.stage)>=0; }).length;
+  var ready=claims.filter(function(c){ return c.stage==='ready'; }).length;
+  var value=claims.filter(function(c){ return c.stage!=='completed'; }).reduce(function(s,c){ return s+(Number(c.estimate)||0); },0);
+  $('#statsRow').innerHTML=
+    '<div class="stat-card active-c"><div class="num">'+active+'</div><div class="lbl">Active Claims</div></div>'+
+    '<div class="stat-card approval-c"><div class="num">'+approval+'</div><div class="lbl">Awaiting Approval</div></div>'+
+    '<div class="stat-card repair-c"><div class="num">'+repair+'</div><div class="lbl">In Production</div></div>'+
+    '<div class="stat-card ready-c"><div class="num">'+ready+'</div><div class="lbl">Ready for Pickup</div></div>'+
+    '<div class="stat-card value-c"><div class="num">'+money(value)+'</div><div class="lbl">Active Pipeline Value</div></div>';
+}
+function renderChips(){
+  var defs=[{k:'all',l:'All'}].concat(STAGES.map(function(s){ return {k:s.key,l:s.label}; }));
+  $('#filterChips').innerHTML=defs.map(function(d){
+    var count=d.k==='all'?claims.length:claims.filter(function(c){return c.stage===d.k;}).length;
+    return '<button class="chip '+(activeFilter===d.k?'active':'')+'" data-filter="'+d.k+'">'+d.l+' ('+count+')</button>';
+  }).join('');
+  $all('#filterChips .chip').forEach(function(ch){
+    ch.addEventListener('click', function(){ activeFilter=ch.getAttribute('data-filter'); renderChips(); renderList(); });
+  });
+}
+function renderList(){
+  var list=claims.filter(function(c){
+    if(activeFilter!=='all' && c.stage!==activeFilter) return false;
+    if(searchTerm){ var hay=(c.customer+' '+vehicleName(c)+' '+c.id+' '+c.insurer+' '+(c.phone||'')).toLowerCase(); if(hay.indexOf(searchTerm.toLowerCase())<0) return false; }
+    return true;
+  });
+  list.sort(function(a,b){ var ac=a.stage==='completed'?1:0, bc=b.stage==='completed'?1:0; if(ac!==bc) return ac-bc; return (b.created||0)-(a.created||0); });
+  if(!list.length){ $('#claimsList').innerHTML='<div class="empty-state"><div class="big">&#128203;</div><h4>No claims found</h4><p>Try adjusting your search or filter, or add a new claim.</p></div>'; return; }
+  $('#claimsList').innerHTML=list.map(function(c){
+    var sd=stageDef(c.stage), pct=stagePct(c.stage);
+    return '<div class="claim-row" data-id="'+esc(c.id)+'">'+
+      '<div><div class="cr-vehicle">'+esc(vehicleName(c))+'</div><div class="cr-sub">'+esc(c.customer)+' · '+esc(c.id)+'</div></div>'+
+      '<div><div class="cr-label">Insurer</div><div class="cr-val">'+esc(c.insurer)+'</div></div>'+
+      '<div class="cr-stage-col"><div class="cr-label">Stage · '+pct+'%</div><span class="badge '+sd.badge+'">'+sd.label+'</span><div class="cr-mini-bar"><div class="cr-mini-fill" style="width:'+pct+'%"></div></div></div>'+
+      '<div><div class="cr-label">Est.</div><div class="cr-val">'+money(c.estimate)+'</div></div>'+
+      '<div><div class="cr-label">Target</div><div class="cr-val">'+fmtDate(c.target)+'</div></div>'+
+    '</div>';
+  }).join('');
+  $all('.claim-row').forEach(function(row){ row.addEventListener('click', function(){ openDetail(row.getAttribute('data-id')); }); });
+}
+function renderDash(){ renderStats(); renderChips(); renderList(); }
+$('#dashSearch').addEventListener('input', function(e){ searchTerm=e.target.value; renderList(); });
+
+/* ADD / EDIT FORM */
+function fillStageSelect(sel,val){ sel.innerHTML=STAGES.map(function(s){ return '<option value="'+s.key+'"'+(s.key===val?' selected':'')+'>'+s.label+'</option>'; }).join(''); }
+fillStageSelect($('#f-stage'),'estimate');
+function openForm(claim){
+  var f=$('#claimForm'); f.reset();
+  fillStageSelect($('#f-stage'), claim?claim.stage:'estimate');
+  if(claim){
+    $('#formTitle').textContent='Edit Claim · '+claim.id;
+    $('#f-id').value=claim.id;
+    $('#f-customer').value=claim.customer||''; $('#f-phone').value=claim.phone||''; $('#f-email').value=claim.email||'';
+    $('#f-year').value=claim.year||''; $('#f-make').value=claim.make||''; $('#f-model').value=claim.model||'';
+    $('#f-color').value=claim.color||''; $('#f-vin').value=claim.vin||'';
+    $('#f-insurer').value=claim.insurer||''; $('#f-claimnum').value=claim.id||''; $('#f-adjuster').value=claim.adjuster||'';
+    $('#f-deductible').value=claim.deductible||''; $('#f-estimate').value=claim.estimate||'';
+    $('#f-stage').value=claim.stage||'estimate'; $('#f-target').value=claim.target||''; $('#f-damage').value=claim.damage||'';
+  } else { $('#formTitle').textContent='New Claim'; $('#f-id').value=''; }
+  openModal('#formModal');
+}
+$('#saveClaimBtn').addEventListener('click', function(){
+  var form=$('#claimForm');
+  if(!form.checkValidity()){ form.reportValidity(); return; }
+  var editId=$('#f-id').value;
+  var customId=$('#f-claimnum').value.trim().toUpperCase();
+  var data={
+    customer:$('#f-customer').value.trim(), phone:$('#f-phone').value.trim(), email:$('#f-email').value.trim(),
+    year:$('#f-year').value.trim(), make:$('#f-make').value.trim(), model:$('#f-model').value.trim(),
+    color:$('#f-color').value.trim(), vin:$('#f-vin').value.trim(),
+    insurer:$('#f-insurer').value.trim(), adjuster:$('#f-adjuster').value.trim(),
+    deductible:$('#f-deductible').value, estimate:$('#f-estimate').value,
+    stage:$('#f-stage').value, target:$('#f-target').value, damage:$('#f-damage').value.trim()
+  };
+  if(editId){
+    var c=claims.filter(function(x){return x.id===editId;})[0];
+    if(c){
+      var changed=c.stage!==data.stage;
+      for(var k in data){ c[k]=data[k]; }
+      if(changed){ c.updates=c.updates||[]; c.updates.push({t:Date.now(), text:'Status updated to "'+stageDef(data.stage).label+'".'}); }
+      saveClaims(claims); toast('Claim updated');
+    }
+  } else {
+    var newId=customId||nextClaimId();
+    data.id=newId; data.created=Date.now();
+    data.updates=[{t:Date.now(), text:'Claim opened. '+(data.damage||'Estimate in progress.')}];
+    claims.push(data); saveClaims(claims); toast('Claim '+newId+' created');
+  }
+  closeModal('#formModal'); renderDash();
+});
+$('#addClaimBtn').addEventListener('click', function(){ openForm(null); });
+
+/* DETAIL VIEW */
+var currentDetailId=null;
+function openDetail(id){
+  var c=claims.filter(function(x){return x.id===id;})[0]; if(!c) return;
+  currentDetailId=id;
+  var sd=stageDef(c.stage), pct=stagePct(c.stage);
+  $('#detailTitle').textContent=vehicleName(c)+' · '+c.id;
+  var updatesHtml=(c.updates||[]).slice().reverse().map(function(u){
+    return '<div class="update-item"><div class="update-dot"></div><div><div class="update-time">'+fmtTime(u.t)+'</div><div class="update-text">'+esc(u.text)+'</div></div></div>';
+  }).join('')||'<p style="color:var(--muted)">No updates yet.</p>';
+  var stageOpts=STAGES.map(function(s){ return '<option value="'+s.key+'"'+(s.key===c.stage?' selected':'')+'>'+s.label+'</option>'; }).join('');
+  $('#detailBody').innerHTML=
+    '<div class="detail-head"><span class="badge '+sd.badge+'">'+sd.label+'</span><span class="pct-badge">'+pct+'% Complete</span></div>'+
+    '<div class="progress-bar" style="margin:14px 0 4px"><div class="progress-fill" style="width:'+pct+'%"></div></div>'+
+    '<div class="stage-select-row"><div class="field"><label>Advance / Change Stage</label><select id="d-stage">'+stageOpts+'</select></div><button class="ctbtn ctbtn-primary" id="d-updateStage">Update Status</button></div>'+
+    '<div class="info-grid">'+
+      '<div class="info-cell"><div class="k">Customer</div><div class="v">'+esc(c.customer)+'</div></div>'+
+      '<div class="info-cell"><div class="k">Phone</div><div class="v">'+esc(c.phone||'—')+'</div></div>'+
+      '<div class="info-cell"><div class="k">Email</div><div class="v">'+esc(c.email||'—')+'</div></div>'+
+      '<div class="info-cell"><div class="k">Vehicle</div><div class="v">'+esc(vehicleName(c))+' '+esc(c.color?'· '+c.color:'')+'</div></div>'+
+      '<div class="info-cell"><div class="k">VIN</div><div class="v">'+esc(c.vin||'—')+'</div></div>'+
+      '<div class="info-cell"><div class="k">Insurer</div><div class="v">'+esc(c.insurer)+'</div></div>'+
+      '<div class="info-cell"><div class="k">Adjuster</div><div class="v">'+esc(c.adjuster||'—')+'</div></div>'+
+      '<div class="info-cell"><div class="k">Deductible</div><div class="v">'+money(c.deductible)+'</div></div>'+
+      '<div class="info-cell"><div class="k">Estimate</div><div class="v accent">'+money(c.estimate)+'</div></div>'+
+      '<div class="info-cell"><div class="k">Target Completion</div><div class="v">'+fmtDate(c.target)+'</div></div>'+
+    '</div>'+
+    (c.damage?'<div class="info-grid" style="grid-template-columns:1fr"><div class="info-cell"><div class="k">Damage / Notes</div><div class="v" style="font-weight:400;line-height:1.6">'+esc(c.damage)+'</div></div></div>':'')+
+    '<div class="updates" style="margin-top:8px"><h4>Status Updates</h4>'+updatesHtml+'<div class="note-add"><input type="text" id="d-note" placeholder="Add an update note..."><button class="ctbtn ctbtn-primary ctbtn-sm" id="d-addNote">Add</button></div></div>';
+  $('#d-updateStage').addEventListener('click', function(){
+    var ns=$('#d-stage').value;
+    if(ns!==c.stage){ c.stage=ns; c.updates=c.updates||[]; c.updates.push({t:Date.now(), text:'Status updated to "'+stageDef(ns).label+'".'}); saveClaims(claims); renderDash(); openDetail(id); toast('Status updated'); }
+  });
+  $('#d-addNote').addEventListener('click', function(){
+    var v=$('#d-note').value.trim(); if(!v) return;
+    c.updates=c.updates||[]; c.updates.push({t:Date.now(), text:v}); saveClaims(claims); openDetail(id); toast('Note added');
+  });
+  $('#d-note').addEventListener('keydown', function(e){ if(e.key==='Enter'){ e.preventDefault(); $('#d-addNote').click(); } });
+  openModal('#detailModal');
+}
+$('#editFromDetailBtn').addEventListener('click', function(){
+  var c=claims.filter(function(x){return x.id===currentDetailId;})[0]; closeModal('#detailModal'); openForm(c);
+});
+$('#deleteClaimBtn').addEventListener('click', function(){
+  if(!currentDetailId) return;
+  if(confirm('Delete claim '+currentDetailId+'? This cannot be undone.')){
+    claims=claims.filter(function(x){return x.id!==currentDetailId;}); saveClaims(claims); closeModal('#detailModal'); renderDash(); toast('Claim deleted');
+  }
+});
+
+/* EXPORT CSV */
+$('#exportBtn').addEventListener('click', function(){
+  var cols=['id','customer','phone','email','year','make','model','color','vin','insurer','adjuster','deductible','estimate','stage','target','damage'];
+  var rows=[cols.join(',')];
+  claims.forEach(function(c){ rows.push(cols.map(function(k){ var v=c[k]==null?'':String(c[k]); return '"'+v.replace(/"/g,'""')+'"'; }).join(',')); });
+  var blob=new Blob([rows.join('\n')],{type:'text/csv'});
+  var url=URL.createObjectURL(blob); var a=document.createElement('a');
+  a.href=url; a.download='greggs-claims-'+new Date().toISOString().slice(0,10)+'.csv'; a.click(); URL.revokeObjectURL(url); toast('Exported '+claims.length+' claims');
+});
+
+/* MODAL HELPERS */
+function openModal(sel){ $(sel).classList.add('open'); document.body.style.overflow='hidden'; }
+function closeModal(sel){ $(sel).classList.remove('open'); document.body.style.overflow=''; }
+$all('[data-close]').forEach(function(btn){ btn.addEventListener('click', function(){ closeModal('#'+btn.closest('.modal-overlay').id); }); });
+$all('.modal-overlay').forEach(function(ov){ ov.addEventListener('click', function(e){ if(e.target===ov) closeModal('#'+ov.id); }); });
+document.addEventListener('keydown', function(e){ if(e.key==='Escape'){ $all('.modal-overlay.open').forEach(function(m){ closeModal('#'+m.id); }); } });
+
+/* DEEP LINK ?mode=shop */
+(function(){ var p=new URLSearchParams(window.location.search); if(p.get('mode')==='shop'){ var t=root.querySelector('.mode-tab[data-mode="shop"]'); if(t) t.click(); } })();
+})();
 </script>
 
 </body>
