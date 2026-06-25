@@ -65,7 +65,7 @@ def _addr(i: int, seed: int) -> str:
 @dataclass
 class GenParams:
     n_wallets: int = 420
-    n_markets: int = 650
+    n_markets: int = 850
     n_leaders: int = 6
     n_followers: int = 24
     skilled_fraction: float = 0.30      # fraction of population with real edge
@@ -139,10 +139,13 @@ class SyntheticGenerator:
             # `info` = genuine forecasting skill: how far the wallet's estimate is
             # pulled toward the realized outcome before the price reveals it. This,
             # not knowledge of the prior probability, is what generates real edge.
-            info_by_arch = {"leader": rng.uniform(0.26, 0.40),
-                            "skilled": rng.uniform(0.14, 0.28),
-                            "follower": rng.uniform(0.08, 0.18),
-                            "noise": rng.uniform(0.0, 0.06)}
+            # Calibrated so realized win rates land in a realistic band
+            # (leaders ~62-70%, skilled ~53-57%, noise ~30-42%) rather than the
+            # implausibly clean separation a larger `info` would produce.
+            info_by_arch = {"leader": rng.uniform(0.21, 0.31),
+                            "skilled": rng.uniform(0.13, 0.22),
+                            "follower": rng.uniform(0.07, 0.14),
+                            "noise": rng.uniform(0.0, 0.05)}
             wallets.append(dict(
                 idx=i, address=_addr(i, get_config().seed), archetype=arch, skill=skill,
                 info=float(info_by_arch[arch]),
@@ -150,7 +153,12 @@ class SyntheticGenerator:
                 margin=float(rng.uniform(0.04, 0.12)),            # required edge to act
                 base_size=float(np.exp(rng.normal(3.0 + 1.4 * skill, 0.6))),  # ~$20-300
                 size_cv=float(0.15 if disciplined else rng.uniform(0.5, 1.1)),
-                activity=float(rng.uniform(0.4, 1.0) * (1.3 if arch in ("leader", "skilled") else 1.0)),
+                # leaders are hyper-active pros (accumulate 100s of resolved markets);
+                # this is what lets the "≥100 resolved" elite filter (Strategy C) bite.
+                activity=float({"leader": rng.uniform(4.5, 6.0),
+                                "skilled": rng.uniform(1.1, 1.8),
+                                "follower": rng.uniform(0.9, 1.4),
+                                "noise": rng.uniform(0.5, 1.0)}[arch]),
                 cat_pref=rng.dirichlet(np.ones(len(self.p.categories)) *
                                        rng.uniform(0.4, 1.5)),
                 hold_to_res=float(0.85 if disciplined else rng.uniform(0.4, 0.8)),
@@ -273,10 +281,12 @@ class SyntheticGenerator:
                 m = next((mm for mm in markets if mm["id"] == ot["market_id"]), None)
                 if m is None:
                     continue
-                # follower enters later (lag) on the same outcome, slightly worse price
+                # follower enters a few hours after the leader on the same outcome,
+                # at a slightly worse price (realistic copy-trade latency).
                 life = (m["end_date"] - m["created_at"]).total_seconds()
                 base_frac = (ot["timestamp"] - m["created_at"]).total_seconds() / max(life, 1)
-                lag_frac = base_frac + rng.uniform(0.01, 0.08)
+                lag_hours = float(rng.uniform(1.0, 30.0))
+                lag_frac = base_frac + (lag_hours * 3600.0) / max(life, 1)
                 self._wallet_trade_in_market(
                     f, m, trades, forced_outcome=ot["outcome_index"],
                     t_frac_override=lag_frac, price_penalty=float(abs(rng.normal(0.01, 0.01))))

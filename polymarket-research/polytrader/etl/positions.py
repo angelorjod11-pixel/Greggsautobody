@@ -30,66 +30,68 @@ def _load_frames(session) -> tuple[pd.DataFrame, pd.DataFrame]:
 
 
 def build_positions() -> Dict[str, int]:
-    """Rebuild the positions table from trades. Idempotent (truncates first)."""
+    """Rebuild the positions table from trades. Idempotent (truncates first).
+
+    Fully vectorized: BUY/SELL fills are aggregated per (wallet, market, outcome)
+    with groupby, then P&L / settlement / status are computed with array ops.
+    """
     with session_scope() as session:
         trades, markets = _load_frames(session)
         if trades.empty:
             return {"positions": 0}
 
-        m = markets.set_index("id")
-        trades = trades.sort_values("timestamp")
-        # signed shares: +buy / -sell
-        trades["signed_shares"] = np.where(trades["side"] == "BUY",
-                                           trades["shares"], -trades["shares"])
-        rows = []
-        grp = trades.groupby(["wallet_address", "market_id", "outcome_index"], sort=False)
-        for (wallet, market_id, outcome), g in grp:
-            if market_id not in m.index:
-                continue
-            mk = m.loc[market_id]
-            buys = g[g["side"] == "BUY"]
-            sells = g[g["side"] == "SELL"]
-            bought_shares = float(buys["shares"].sum())
-            if bought_shares <= 0:
-                continue
-            cost_basis = float(buys["usd_size"].sum())
-            sold_shares = float(sells["shares"].sum())
-            proceeds = float(sells["usd_size"].sum())
-            net_shares = max(0.0, bought_shares - sold_shares)
-            avg_entry = cost_basis / bought_shares
+        keys = ["wallet_address", "market_id", "outcome_index"]
+        trades["timestamp"] = pd.to_datetime(trades["timestamp"])
+        is_buy = trades["side"] == "BUY"
 
-            resolved = bool(mk["resolved"])
-            opened_at = g["timestamp"].iloc[0]
-            if resolved:
-                payout = 1.0 if int(outcome) == int(mk["winning_outcome"]) else 0.0
-                settlement = net_shares * payout
-                # closed at last sell if fully exited before resolution, else at resolution
-                if net_shares <= 1e-9 and not sells.empty:
-                    closed_at, status = sells["timestamp"].iloc[-1], "closed"
-                else:
-                    closed_at, status = mk["resolved_at"], "settled"
-                realized = proceeds + settlement - cost_basis
-                roi = realized / cost_basis if cost_basis > 0 else 0.0
-                is_win = bool(realized > 0)
-            else:
-                settlement, realized, roi, is_win = 0.0, 0.0, 0.0, None
-                closed_at, status = None, "open"
+        buys = (trades[is_buy].groupby(keys, sort=False)
+                .agg(bought_shares=("shares", "sum"), cost_basis_usd=("usd_size", "sum"),
+                     opened_at=("timestamp", "min")))
+        sells = (trades[~is_buy].groupby(keys, sort=False)
+                 .agg(sold_shares=("shares", "sum"), proceeds_usd=("usd_size", "sum"),
+                      last_sell=("timestamp", "max")))
+        p = buys.join(sells, how="left").reset_index()
+        p["sold_shares"] = p["sold_shares"].fillna(0.0)
+        p["proceeds_usd"] = p["proceeds_usd"].fillna(0.0)
+        p = p[p["bought_shares"] > 0].copy()
 
-            dur_h = 0.0
-            if closed_at is not None and pd.notna(closed_at):
-                dur_h = max(0.0, (pd.Timestamp(closed_at) - pd.Timestamp(opened_at))
-                            .total_seconds() / 3600.0)
+        mk = markets[["id", "resolved", "resolved_at", "winning_outcome"]].rename(columns={"id": "market_id"})
+        mk["resolved_at"] = pd.to_datetime(mk["resolved_at"])
+        p = p.merge(mk, on="market_id", how="inner")
 
-            rows.append(dict(
-                wallet_address=wallet, market_id=market_id, outcome_index=int(outcome),
-                opened_at=pd.Timestamp(opened_at).to_pydatetime(),
-                closed_at=(pd.Timestamp(closed_at).to_pydatetime()
-                           if closed_at is not None and pd.notna(closed_at) else None),
-                shares=bought_shares, avg_entry_price=avg_entry, cost_basis_usd=cost_basis,
-                proceeds_usd=proceeds, settlement_usd=settlement, realized_pnl_usd=realized,
-                roi=roi, duration_hours=dur_h, status=status, is_win=is_win,
-            ))
+        p["avg_entry_price"] = p["cost_basis_usd"] / p["bought_shares"]
+        p["shares"] = p["bought_shares"]
+        p["net_shares"] = (p["bought_shares"] - p["sold_shares"]).clip(lower=0.0)
+        resolved = p["resolved"].astype(bool)
+        won = p["outcome_index"].astype("Int64") == p["winning_outcome"].astype("Int64")
+        payout = (won & resolved).astype(float)
+        p["settlement_usd"] = p["net_shares"] * payout
+        fully_exited = (p["net_shares"] <= 1e-9) & (p["sold_shares"] > 0)
+
+        # status: open (unresolved) | closed (exited before resolution) | settled (held to resolution)
+        p["status"] = np.where(~resolved, "open", np.where(fully_exited, "closed", "settled"))
+        p["closed_at"] = pd.NaT
+        p.loc[resolved & fully_exited, "closed_at"] = p.loc[resolved & fully_exited, "last_sell"]
+        p.loc[resolved & ~fully_exited, "closed_at"] = p.loc[resolved & ~fully_exited, "resolved_at"]
+
+        p["realized_pnl_usd"] = np.where(
+            resolved, p["proceeds_usd"] + p["settlement_usd"] - p["cost_basis_usd"], 0.0)
+        p["roi"] = np.where(p["cost_basis_usd"] > 0,
+                            p["realized_pnl_usd"] / p["cost_basis_usd"], 0.0)
+        dur = (pd.to_datetime(p["closed_at"]) - p["opened_at"]).dt.total_seconds() / 3600.0
+        p["duration_hours"] = dur.fillna(0.0).clip(lower=0.0)
+        p["is_win"] = np.where(resolved, p["realized_pnl_usd"] > 0, None)
+
+        cols = ["wallet_address", "market_id", "outcome_index", "opened_at", "closed_at",
+                "shares", "avg_entry_price", "cost_basis_usd", "proceeds_usd",
+                "settlement_usd", "realized_pnl_usd", "roi", "duration_hours", "status", "is_win"]
+        out = p[cols].copy()
+        out["closed_at"] = out["closed_at"].astype(object).where(out["closed_at"].notna(), None)
+        records = out.to_dict("records")
+        for r in records:  # normalize Na/NaT -> None for the is_win Boolean column
+            if r["is_win"] is not None and not isinstance(r["is_win"], (bool, np.bool_)):
+                r["is_win"] = None
 
         session.execute(delete(Position))
-        session.bulk_insert_mappings(Position, rows)
-        return {"positions": len(rows)}
+        session.bulk_insert_mappings(Position, records)
+        return {"positions": len(records)}

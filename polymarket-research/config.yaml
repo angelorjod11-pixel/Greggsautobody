@@ -93,7 +93,7 @@ correlation:
   universe: top_n               # build network over the top-N ranked wallets
   top_n: 100
   min_shared_markets: 5         # pair must co-trade >= this many markets
-  cofollow_window_hours: 24     # "same market, similar time" window
+  cofollow_window_hours: 48     # "same market, similar time" window (copy-trade latency)
   edge_metric: timing_jaccard   # which correlation seeds graph edges
   edge_threshold: 0.15          # min edge weight to keep
   lead_lag_window_hours: 48     # for leader/follower detection
