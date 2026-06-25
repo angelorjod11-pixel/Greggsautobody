@@ -1,0 +1,25 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+.pytest_cache/
+.venv/
+venv/
+
+# Local data & generated artifacts (reproducible from the pipeline)
+data/*.db
+data/*.db-wal
+data/*.db-shm
+data/*.parquet
+data/*.csv
+reports/generated/
+*.log
+
+# Env
+.env
+
+# OS
+.DS_Store

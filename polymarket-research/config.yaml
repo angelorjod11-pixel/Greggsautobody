@@ -1,0 +1,150 @@
+# =============================================================================
+# Polytrader configuration — single source of truth for analytical parameters.
+# Environment variables (see .env.example) override the connection/runtime bits;
+# the analytical weights live here so methodology changes are auditable in git.
+# =============================================================================
+
+run:
+  seed: 42                      # global RNG seed for reproducibility
+  data_source: synthetic        # "synthetic" (offline) | "live" (Polymarket APIs)
+  as_of: null                   # ISO date to freeze analysis at (null = max trade time in DB)
+
+# ---------------------------------------------------------------------------
+# Data collection (live mode). All hosts are subject to your network egress
+# policy; in sandboxed environments these may be blocked — see docs/METHODOLOGY.
+# ---------------------------------------------------------------------------
+collect:
+  gamma_base:   "https://gamma-api.polymarket.com"   # markets / events metadata
+  data_base:    "https://data-api.polymarket.com"    # trades / positions / holders
+  clob_base:    "https://clob.polymarket.com"        # order book / price history
+  # On-chain enriched trades (Polymarket CTF Exchange) via Goldsky subgraph:
+  subgraph_url: "https://api.goldsky.com/api/public/project_cl6mb8i9h0003e201j6li0diw/subgraphs/orderbook-subgraph-polygon/prod/gn"
+  requests_per_second: 4.0      # client-side token-bucket rate limit
+  max_retries: 5
+  backoff_base_seconds: 1.5
+  page_size: 500
+  max_markets: 5000             # cap discovery breadth per run
+  max_trades_per_market: 20000
+  min_market_volume_usd: 5000   # ignore illiquid markets during discovery
+
+# ---------------------------------------------------------------------------
+# Eligibility filters — guard against survivorship bias & small-sample noise.
+# A wallet must clear ALL of these to be ranked.
+# ---------------------------------------------------------------------------
+eligibility:
+  min_resolved_positions: 20    # round-trip resolved positions
+  min_distinct_markets: 10
+  min_capital_deployed_usd: 200 # sum of cost basis across resolved positions
+  min_active_days: 14           # span between first and last trade
+  max_single_position_frac: 0.95  # drop wallets that are one lucky all-in bet
+
+# ---------------------------------------------------------------------------
+# Ranking weights — composite score in [0,100].
+# Top-level weights MUST sum to 1.0 (validated at load).
+# Each block's sub-weights are normalized internally.
+# ---------------------------------------------------------------------------
+ranking:
+  weights:
+    profitability: 0.40
+    win_rate:      0.20
+    consistency:   0.20
+    risk:          0.10
+    longevity:     0.10
+  profitability:                # 40%
+    total_profit:  0.50         # net realized USD profit (percentile)
+    avg_roi:       0.30         # mean ROI per position
+    profit_factor: 0.20         # gross win / gross loss
+  consistency:                  # 20%
+    median_roi:    0.40         # robust central ROI
+    roi_stability: 0.35         # 1 / (1 + cv of monthly pnl)  -> steady earners
+    positive_month_rate: 0.25   # fraction of active months that were profitable
+  risk:                         # 10%
+    max_drawdown:  0.50         # smaller peak-to-trough is better (inverted)
+    sharpe:        0.50         # per-position sharpe (annualization-free)
+  longevity:                    # 10%
+    active_days:   0.60
+    trade_count:   0.40
+  bootstrap_iterations: 1000    # for score confidence intervals
+  winsorize_pct: 0.01           # clip extreme metric tails before percentiling
+
+# ---------------------------------------------------------------------------
+# Clustering — behavioral segmentation of eligible wallets.
+# ---------------------------------------------------------------------------
+clustering:
+  features:                     # behavioral feature columns (see clustering/cluster.py)
+    - avg_position_size_usd
+    - position_size_cv
+    - median_hold_hours
+    - entry_lead_days           # avg days entered before resolution
+    - markets_per_active_month
+    - category_concentration    # HHI over category exposure
+    - avg_entry_price           # avg implied prob at entry (contrarian vs favorite)
+    - win_rate
+    - avg_roi
+  kmeans_k_range: [2, 10]       # pick k by silhouette
+  hierarchical_linkage: ward
+  pca_components: 2
+  standardize: true
+
+# ---------------------------------------------------------------------------
+# Correlation / network — relationships between top wallets.
+# ---------------------------------------------------------------------------
+correlation:
+  universe: top_n               # build network over the top-N ranked wallets
+  top_n: 100
+  min_shared_markets: 5         # pair must co-trade >= this many markets
+  cofollow_window_hours: 24     # "same market, similar time" window
+  edge_metric: timing_jaccard   # which correlation seeds graph edges
+  edge_threshold: 0.15          # min edge weight to keep
+  lead_lag_window_hours: 48     # for leader/follower detection
+  louvain_resolution: 1.0
+
+# ---------------------------------------------------------------------------
+# Backtesting — copy-trade strategy simulation. Look-ahead-safe by construction.
+# ---------------------------------------------------------------------------
+backtest:
+  starting_capital_usd: 1000.0
+  fee_bps: 0.0                  # Polymarket charges 0 trading fee (kept configurable)
+  slippage_bps: 75             # modeled adverse fill (0.75%) on entry
+  max_concurrent_positions: 25
+  per_trade_fraction: 0.04      # 4% of bankroll per copied signal (fixed-fractional)
+  train_fraction: 0.6           # chronological split; wallets selected on train only
+  strategies:
+    A: { type: copy_top, top_n: 10 }
+    B: { type: consensus, top_n: 25, min_elite_in_market: 3 }
+    C: { type: filtered, min_win_rate: 0.65, min_avg_roi: 0.20, min_resolved: 100 }
+    D: { type: weighted_consensus, top_n: 25, recency_halflife_days: 90 }
+
+# ---------------------------------------------------------------------------
+# Small-account optimization — the $20 bankroll question.
+# ---------------------------------------------------------------------------
+small_account:
+  bankroll_usd: 20.0
+  min_bet_usd: 1.0
+  max_bet_usd: 5.0
+  kelly_fraction: 0.25          # fractional Kelly (quarter-Kelly) for safety
+  fee_bps: 0.0
+  slippage_bps: 100             # small orders eat more slippage (1%)
+  monte_carlo_paths: 20000
+  horizon_trades: 200
+  ruin_threshold_usd: 5.0       # account considered "ruined" below this
+  double_target_usd: 40.0
+
+# ---------------------------------------------------------------------------
+# Early-signal detection.
+# ---------------------------------------------------------------------------
+signals:
+  entry_buckets_days: [0, 1, 3, 7, 14, 30, 90, 9999]   # days-before-resolution buckets
+  odds_buckets: [0.0, 0.1, 0.25, 0.4, 0.6, 0.75, 0.9, 1.0]
+  min_positions_per_bucket: 30
+
+# ---------------------------------------------------------------------------
+# Market categories — used for alpha discovery. Keyword routing (live mode)
+# falls back to the explicit category field when present.
+# ---------------------------------------------------------------------------
+categories:
+  Politics:  [election, president, senate, governor, congress, vote, primary, parliament, poll]
+  Sports:    [nba, nfl, mlb, nhl, soccer, premier, ufc, tennis, olympic, game, match, cup, win vs]
+  Crypto:    [bitcoin, btc, ethereum, eth, solana, crypto, token, coinbase, binance]
+  Economics: [fed, rate, inflation, cpi, gdp, recession, unemployment, jobs, jerome powell]
+  News:      [breaking, court, ruling, resign, ceasefire, war, treaty, announce, launch]

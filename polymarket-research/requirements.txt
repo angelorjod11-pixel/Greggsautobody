@@ -1,0 +1,29 @@
+# ---- Core data / numerics ----
+numpy>=1.26
+pandas>=2.1
+scipy>=1.11
+scikit-learn>=1.3
+networkx>=3.2          # ships Louvain community detection (networkx.algorithms.community)
+
+# ---- Storage / config ----
+SQLAlchemy>=2.0        # works against SQLite (default) and PostgreSQL (DATABASE_URL)
+psycopg2-binary>=2.9 ; python_version < "3.13"   # PostgreSQL driver (optional, prod)
+pydantic>=2.5
+pydantic-settings>=2.1
+PyYAML>=6.0
+python-dateutil>=2.8
+
+# ---- HTTP collection ----
+requests>=2.31
+httpx>=0.26
+tenacity>=8.2          # retry / exponential backoff for collectors
+
+# ---- API / dashboard ----
+fastapi>=0.109
+uvicorn[standard]>=0.27
+streamlit>=1.30
+plotly>=5.18
+jinja2>=3.1            # final-report rendering
+
+# ---- Dev / test ----
+pytest>=7.4
