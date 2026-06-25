@@ -74,7 +74,7 @@ flowchart TD
     REP --> OUT["reports/generated/FINAL_REPORT.md"]
     ART -. "read-only JSON" .-> API["api/main.py (FastAPI, GET-only)"]
     WS -. .-> API
-    API -. "consumes" .-> DASH["dashboard/ (Streamlit, stub)"]
+    API -. "or read directly" .-> DASH["dashboard/app.py (Streamlit + Plotly)"]
 ```
 
 Plain-text flow:
@@ -87,7 +87,7 @@ ingest (synthetic OR live collectors)
   -> { clustering, correlation, backtest,
        small-account, signals, alpha }     (wallet_clusters, wallet_pairs,
                                             analysis_artifacts)
-  -> report (Markdown)  [+ read-only FastAPI; Streamlit dashboard stub]
+  -> report (Markdown)  [+ read-only FastAPI service; Streamlit dashboard]
 ```
 
 ## Module map
@@ -113,7 +113,7 @@ ingest (synthetic OR live collectors)
 | `polytrader/cli.py` | Command-line entrypoint (`python -m polytrader.cli ...`): `all`, `initdb`, every single stage, and `top --n`. |
 | `polytrader/report/build_report.py` | Renders the final Markdown report from `wallet_scores` + all analysis artifacts, with CIs and explicit bias caveats. |
 | `api/main.py` | Read-only FastAPI service (`app`) over the populated database + artifacts. Serializes rankings, clusters, network, backtests, small-account sizing, signals and category alpha as JSON; every endpoint is a `GET` (nothing writes). |
-| `dashboard/` | Streamlit dashboard package — stub in this build (only `__init__.py`; the `dashboard` optional extra declares Streamlit/Plotly). Intended to consume the read-only API. |
+| `dashboard/app.py` | Streamlit + Plotly dashboard (7 tabs: overview, wallet detail, network graph, cluster scatter, backtest equity curves, $20 plan, signals & alpha). Reads the DB directly via `dashboard/data.py` helpers. |
 | `tests/` | Pytest suite: collector normalizers (`test_collectors.py`), metric/percentile/Kelly math (`test_helpers.py`), and a full populated-DB pipeline run (`test_pipeline.py`) asserting eligibility, skill recovery, configured-weight scoring, clustering, network/leaders, **backtest look-ahead safety**, small-account and signals/alpha. |
 | `workflows/` | Placeholder directory (empty in this build). |
 
@@ -219,11 +219,14 @@ produced offline by `python -m polytrader.cli all`.
 
 ### Dashboard
 
-The `dashboard/` package is a stub in this build (only `__init__.py`); the
-`dashboard` extra declares Streamlit/Plotly. It is intended to consume the
-read-only API above. The shipped, fully-rendered deliverable is the Markdown
-report at `reports/generated/FINAL_REPORT.md`, produced by the `report` stage
-from the same artifacts the API serves.
+Launch the Streamlit dashboard with `make dashboard` (or
+`streamlit run dashboard/app.py`). It reads the populated database directly
+through the `dashboard/data.py` helpers and renders seven tabs — overview &
+top-25 table, per-wallet score breakdown, the Plotly co-trading network graph
+(nodes colored by Louvain community), the PCA cluster scatter, backtest equity
+curves, the $20 small-account plan, and the signals/alpha tables. The Markdown
+report at `reports/generated/FINAL_REPORT.md` is the same analysis in static
+form, produced by the `report` stage from the same artifacts the API serves.
 
 ### Daily / repeated workflow
 
